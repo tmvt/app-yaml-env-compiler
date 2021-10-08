@@ -13,7 +13,7 @@ import (
 
 func main() {
 	fmt.Println("Ready to compile ...")
-	
+
 	filename, _ := filepath.Abs("app.yaml")
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -25,8 +25,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
-	fmt.Println(fmt.Sprintf("Env variables will be replaced: %v",mapResult["env_variables"]))
 
 	for k, any := range mapResult {
 		if k == "env_variables" {
@@ -44,16 +42,25 @@ func main() {
 					envName := in.(string)
 					envVal := iv.(string)
 
-					env := strings.Replace(strings.TrimSpace(envVal), "$", "", -1)
-					envMap[envName] = os.Getenv(env)
+					// Check if var is supposed to be replaced
+					if strings.HasPrefix(envVal, "$") {
+						env := strings.Replace(strings.TrimSpace(envVal), "$", "", -1)
+						// Do not replace if no new value has been set
+						if nv := os.Getenv(env); nv != "" {
+							envMap[envName] = nv
+							fmt.Printf("Replaced %v!\n", envName)
+						} else {
+							fmt.Printf("No new value for %v!\n", envName)
+						}
+					}
 				}
 			default:
 				panic(fmt.Sprintf("This is not supposed to happen, but if it does, good luck"))
 			}
 		}
 	}
-	
-	fmt.Println(fmt.Sprintf("Compiled env variables: %v",mapResult["env_variables"]))
+
+	fmt.Println(fmt.Sprintf("Compiled env variables: %v", mapResult["env_variables"]))
 
 	out, err := yaml.Marshal(mapResult)
 	// write the whole body at once
@@ -65,7 +72,7 @@ func main() {
 
 func checkIsPointer(any interface{}) error {
 	if reflect.ValueOf(any).Kind() != reflect.Ptr {
-		return fmt.Errorf("You passed something that was not a pointer: %s", any)
+		return fmt.Errorf("you passed something that was not a pointer: %s", any)
 	}
 	return nil
 }
