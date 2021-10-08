@@ -14,14 +14,16 @@
             MY_ENV_VAR1: $MY_ENV_VAR1
             MY_ENV_VAR2: $MY_ENV_VAR2
 
+*Only variables which have values beginning with `$` are replaced!*
+
 2. Add this action to your workflow:
     
         - uses: actions/checkout@v1
-        - uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
+        - uses: tmvt/app-yaml-env-compiler@v1.0
           env:
             MY_ENV_VAR1: ${{ secrets.MY_ENV_VAR1 }}
-            MY_ENV_VAR2: ${{ secrets.MY_ENV_VAR2 }}  
-         
+            MY_ENV_VAR2: ${{ secrets.MY_ENV_VAR2 }}
+
 `Note: app.yaml file should be in the root project directory`
 
 
@@ -33,7 +35,7 @@ Full example with deployment to Google App Engine:
         needs: [build]
     steps:
         - uses: actions/checkout@v1
-        - uses: ikuanyshbekov/app-yaml-env-compiler@v1.0
+        - uses: tmvt/app-yaml-env-compiler@v1.0
           env:
             MY_ENV_VAR1: ${{ secrets.MY_ENV_VAR1 }}
             MY_ENV_VAR2: ${{ secrets.MY_ENV_VAR2 }}              
